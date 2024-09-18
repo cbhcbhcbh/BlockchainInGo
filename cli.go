@@ -46,7 +46,6 @@ func (cli *CLI) validateArgs() {
 }
 
 func (cli *CLI) printChain() {
-	// TODO: Fix this
 	bc := NewBlockchain("")
 	defer bc.db.Close()
 
