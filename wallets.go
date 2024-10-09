@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"crypto/elliptic"
 	"encoding/gob"
+	"fmt"
 	"log"
 	"os"
 )
-
-const walletFile = "wallet_%s.dat"
 
 type Wallets struct {
 	Wallets map[string]*Wallet
@@ -25,7 +24,7 @@ func NewWallets() (*Wallets, error) {
 
 func (ws *Wallets) CreateWallet() string {
 	wallet := NewWallet()
-	address := string(wallet.GetAddress())
+	address := fmt.Sprintf("%s", wallet.GetAddress())
 
 	ws.Wallets[address] = wallet
 
@@ -42,7 +41,7 @@ func (ws *Wallets) GetAddresses() []string {
 	return addresses
 }
 
-func (ws *Wallets) GetWallet(address string) Wallet {
+func (ws Wallets) GetWallet(address string) Wallet {
 	return *ws.Wallets[address]
 }
 
@@ -60,7 +59,6 @@ func (ws *Wallets) LoadFromFile() error {
 	gob.Register(elliptic.P256())
 	decoder := gob.NewDecoder(bytes.NewReader(fileContent))
 	err = decoder.Decode(&wallets)
-
 	if err != nil {
 		log.Panic(err)
 	}
