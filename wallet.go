@@ -20,6 +20,13 @@ type Wallet struct {
 	PublicKey  []byte
 }
 
+func NewWallet() *Wallet {
+	private, public := newKeyPair()
+	wallet := Wallet{private, public}
+
+	return &wallet
+}
+
 func (w Wallet) GetAddress() []byte {
 	pubKeyHash := HashPubKey(w.PublicKey)
 
@@ -50,9 +57,9 @@ func ValidateAddress(address string) bool {
 	actualChecksum := pubKeyHash[len(pubKeyHash)-addressChecksumLen:]
 	version := pubKeyHash[0]
 	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-addressChecksumLen]
-	targetCheckSum := checksum(append([]byte{version}, pubKeyHash...))
+	targetChecksum := checksum(append([]byte{version}, pubKeyHash...))
 
-	return bytes.Compare(actualChecksum, targetCheckSum) == 0
+	return bytes.Compare(actualChecksum, targetChecksum) == 0
 }
 
 func checksum(payload []byte) []byte {
@@ -60,13 +67,6 @@ func checksum(payload []byte) []byte {
 	secondSHA := sha256.Sum256(firstSHA[:])
 
 	return secondSHA[:addressChecksumLen]
-}
-
-func NewWallet() *Wallet {
-	private, public := newKeyPair()
-	wallet := Wallet{private, public}
-
-	return &wallet
 }
 
 func newKeyPair() (ecdsa.PrivateKey, []byte) {
