@@ -66,7 +66,7 @@ func CreateBlockchain(address string) *Blockchain {
 }
 
 func NewBlockchain(address string) *Blockchain {
-	if dbExists() == false {
+	if !dbExists() {
 		fmt.Println("No existing blockchain found. Create one first.")
 		os.Exit(1)
 	}
@@ -123,7 +123,7 @@ func (bc *Blockchain) FindTransaction(ID []byte) (Transaction, error) {
 		block := bci.Next()
 
 		for _, tx := range block.Transactions {
-			if bytes.Compare(tx.ID, ID) == 0 {
+			if bytes.Equal(tx.ID, ID) {
 				return *tx, nil
 			}
 		}
@@ -162,7 +162,7 @@ func (bc *Blockchain) FindUnspentTransactions(pubKeyHash []byte) []Transaction {
 				}
 			}
 
-			if tx.IsCoinbase() == false {
+			if !tx.IsCoinbase() {
 				for _, in := range tx.Vin {
 					if in.UsesKey(pubKeyHash) {
 						inTxID := hex.EncodeToString(in.Txid)
@@ -249,7 +249,7 @@ func (bc *Blockchain) MineBlock(transactions []*Transaction) {
 	var lastHash []byte
 
 	for _, tx := range transactions {
-		if bc.VerifyTransaction(tx) != true {
+		if !bc.VerifyTransaction(tx) {
 			log.Panic("ERROR: Invalid transaction")
 		}
 	}

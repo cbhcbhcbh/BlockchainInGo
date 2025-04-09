@@ -153,8 +153,12 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 		x.SetBytes(vin.PubKey[:(keyLen / 2)])
 		y.SetBytes(vin.PubKey[(keyLen / 2):])
 
-		rawPubKey := ecdsa.PublicKey{curve, &x, &y}
-		if ecdsa.Verify(&rawPubKey, txCopy.ID, &r, &s) == false {
+		rawPubKey := ecdsa.PublicKey{
+			Curve: curve,
+			X:     &x,
+			Y:     &y,
+		}
+		if !ecdsa.Verify(&rawPubKey, txCopy.ID, &r, &s) {
 			return false
 		}
 	}
@@ -170,7 +174,7 @@ func NewCoinbaseTX(to, data string) *Transaction {
 			log.Panic(err)
 		}
 
-		data = fmt.Sprintf("%s", randData)
+		data = string(randData)
 	}
 
 	txin := TXInput{[]byte{}, -1, nil, []byte(data)}
