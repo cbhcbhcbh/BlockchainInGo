@@ -1,0 +1,87 @@
+package main
+
+import (
+	"encoding/hex"
+	"log"
+
+	"github.com/boltdb/bolt"
+)
+
+const utxoBucket = "chainstate"
+
+type UTXOSet struct {
+	Blockchain *Blockchain
+}
+
+func (u UTXOSet) Reindex() {
+	db := u.Blockchain.db
+
+	err := db.Update(func(tx *bolt.Tx) error {
+		bucketName := []byte(utxoBucket)
+		b := tx.Bucket(bucketName)
+
+		if b != nil {
+			err := tx.DeleteBucket(bucketName)
+			if err != nil {
+				log.Panic(err)
+			}
+		}
+
+		_, err := tx.CreateBucket(bucketName)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	UTXO := u.Blockchain.FindAllUTXO()
+
+	err = db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utxoBucket))
+
+		for txID, outs := range UTXO {
+			key, err := hex.DecodeString(txID)
+			if err != nil {
+				log.Panic(err)
+			}
+
+			err = b.Put(key, outs.Serialize())
+			if err != nil {
+				log.Panic(err)
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func (u UTXOSet) GetCount() int {
+	db := u.Blockchain.db
+	counter := 0
+
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utxoBucket))
+		c := b.Cursor()
+
+		for k, _ := c.First(); k != nil; k, _ = c.Next() {
+			counter++
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return counter
+}
