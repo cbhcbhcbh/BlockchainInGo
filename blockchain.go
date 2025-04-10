@@ -65,7 +65,7 @@ func CreateBlockchain(address string) *Blockchain {
 	return &bc
 }
 
-func NewBlockchain(address string) *Blockchain {
+func NewBlockchain() *Blockchain {
 	if !dbExists() {
 		fmt.Println("No existing blockchain found. Create one first.")
 		os.Exit(1)
