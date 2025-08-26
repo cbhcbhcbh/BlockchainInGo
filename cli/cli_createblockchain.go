@@ -1,18 +1,20 @@
-package main
+package cli
 
 import (
 	"fmt"
 	"log"
+
+	"github.com/cbhcbhcbh/BlockchainInGo/chain"
 )
 
 func (cli *CLI) createBlockchain(address string) {
-	if !ValidateAddress(address) {
+	if !chain.ValidateAddress(address) {
 		log.Panic("ERROR: Address is not valid")
 	}
-	bc := CreateBlockchain(address)
+	bc := chain.CreateBlockchain(address)
 	defer bc.db.Close()
 
-	UTXOSet := UTXOSet{bc}
+	UTXOSet := chain.UTXOSet{bc}
 	UTXOSet.Reindex()
 
 	fmt.Println("Done!")

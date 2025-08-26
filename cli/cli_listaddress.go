@@ -1,12 +1,14 @@
-package main
+package cli
 
 import (
 	"fmt"
 	"log"
+
+	"github.com/cbhcbhcbh/BlockchainInGo/chain"
 )
 
 func (cli *CLI) listAddresses() {
-	wallets, err := NewWallets()
+	wallets, err := chain.NewWallets()
 	if err != nil {
 		log.Panic(err)
 	}

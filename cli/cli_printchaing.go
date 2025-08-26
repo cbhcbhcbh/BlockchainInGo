@@ -1,12 +1,14 @@
-package main
+package cli
 
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/cbhcbhcbh/BlockchainInGo/chain"
 )
 
 func (cli *CLI) printChain() {
-	bc := NewBlockchain()
+	bc := chain.NewBlockchain()
 	defer bc.db.Close()
 
 	bci := bc.Iterator()
@@ -16,7 +18,7 @@ func (cli *CLI) printChain() {
 
 		fmt.Printf("============ Block %x ============\n", block.Hash)
 		fmt.Printf("Prev. block: %x\n", block.PrevBlockHash)
-		pow := NewProofOfWork(block)
+		pow := chain.NewProofOfWork(block)
 		fmt.Printf("PoW: %s\n\n", strconv.FormatBool(pow.Validate()))
 		for _, tx := range block.Transactions {
 			fmt.Println(tx)
